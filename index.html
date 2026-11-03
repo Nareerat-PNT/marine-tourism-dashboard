@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard สถิติการเดินเรือท่องเที่ยวทางทะเล ปี 2568</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts Kanit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Navbar / Header -->
+  <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div class="p-2.5 bg-white/10 rounded-xl backdrop-blur-md border border-white/20 shadow-inner">
+            <svg class="w-8 h-8 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">ปี 2568</span>
+              <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">ข้อมูล 19 จังหวัด</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white mt-1">Dashboard สถิติการเดินเรือท่องเที่ยวทางทะเล</h1>
+            <p class="text-xs sm:text-sm text-cyan-100/80">ตาราง 14: สถิติจำนวนเที่ยวเรือ ผู้โดยสาร และขนาดเรือ จำแนกตามท่าเรือของแต่ละจังหวัด</p>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <button onclick="downloadCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-medium rounded-lg shadow transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            ส่งออก CSV
+          </button>
+          <button onclick="downloadJSON()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-medium rounded-lg shadow transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            ดาวน์โหลด JSON
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI Summary Cards -->
+    <section class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+        <div class="flex items-center justify-between text-slate-500 mb-2">
+          <span class="text-xs font-medium">ผู้โดยสารรวม (คน)</span>
+          <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          </div>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900" id="cardPassengers">43,328,634</div>
+        <p class="text-xs text-blue-600 font-medium mt-1" id="cardPassengersSub">จาก 19 จังหวัดทางทะเล</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+        <div class="flex items-center justify-between text-slate-500 mb-2">
+          <span class="text-xs font-medium">เที่ยวเรือรวม (เที่ยว)</span>
+          <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </div>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900" id="cardTrips">1,125,561</div>
+        <p class="text-xs text-indigo-600 font-medium mt-1">เที่ยวเรือที่มีการบันทึก</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+        <div class="flex items-center justify-between text-slate-500 mb-2">
+          <span class="text-xs font-medium">เฉลี่ยต่อเที่ยว</span>
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </div>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900" id="cardAvgPax">38.5</div>
+        <p class="text-xs text-emerald-600 font-medium mt-1">คน / เที่ยวเรือ</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+        <div class="flex items-center justify-between text-slate-500 mb-2">
+          <span class="text-xs font-medium">จำนวนท่าเรือ</span>
+          <div class="p-2 bg-sky-50 text-sky-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          </div>
+        </div>
+        <div class="text-xl sm:text-2xl font-bold text-slate-900" id="cardPorts">82</div>
+        <p class="text-xs text-sky-600 font-medium mt-1" id="cardPortsSub">จุดบริการทั่วประเทศ</p>
+      </div>
+
+      <div class="col-span-2 sm:col-span-1 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 hover:shadow-md transition">
+        <div class="flex items-center justify-between text-slate-500 mb-2">
+          <span class="text-xs font-medium">จังหวัดสูงสุด</span>
+          <div class="p-2 bg-amber-50 text-amber-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+          </div>
+        </div>
+        <div class="text-lg sm:text-xl font-bold text-amber-600 truncate" id="cardTopProvince">สุราษฎร์ธานี</div>
+        <p class="text-xs text-slate-500 font-medium mt-1" id="cardTopProvincePax">10.29M คน (23.7%)</p>
+      </div>
+    </section>
+
+    <!-- Filters Bar -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+          ตัวกรองข้อมูล (Filters)
+        </h2>
+        <span class="text-xs font-medium text-slate-500" id="filterStatusText">แสดง 169 รายการ</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Province Filter -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">เลือกจังหวัด</label>
+          <select id="selectProvince" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2.5 outline-none transition">
+            <option value="ALL">-- ทุกจังหวัด (19 จังหวัด) --</option>
+          </select>
+        </div>
+
+        <!-- Vessel Type Filter -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">ประเภท / ขนาดเรือ</label>
+          <select id="selectVessel" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-2.5 outline-none transition">
+            <option value="ALL">-- ทุกประเภทเรือ --</option>
+            <option value="เรือขนาดเล็ก">เรือขนาดเล็ก</option>
+            <option value="เรือขนาดใหญ่">เรือขนาดใหญ่</option>
+            <option value="แพขนานยนต์">แพขนานยนต์</option>
+          </select>
+        </div>
+
+        <!-- Search Input -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">ค้นหาท่าเรือ / เส้นทาง</label>
+          <div class="relative">
+            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="พิมพ์ชื่อท่าเรือ หรือ เส้นทาง..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-9 pr-3 py-2.5 outline-none transition">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="flex items-end">
+          <button onclick="resetFilters()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition flex items-center justify-center gap-1.5 border border-slate-200">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            ล้างตัวกรอง
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Province Comparison Chart -->
+      <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-800">เปรียบเทียบสถิติรายจังหวัด</h3>
+            <p class="text-xs text-slate-500">เปรียบเทียบจำนวนผู้โดยสารหรือเที่ยวเรือตามจังหวัด</p>
+          </div>
+          <div class="inline-flex rounded-lg bg-slate-100 p-1 border border-slate-200 self-start sm:self-auto">
+            <button id="btnMetricPax" onclick="setChartMetric('passengers')" class="px-3 py-1 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition">จำนวนผู้โดยสาร</button>
+            <button id="btnMetricTrips" onclick="setChartMetric('trips')" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition">จำนวนเที่ยวเรือ</button>
+          </div>
+        </div>
+        <div class="relative flex-grow min-h-[340px]">
+          <canvas id="provinceBarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Doughnut Chart for Vessel Types -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col">
+        <div class="mb-4">
+          <h3 class="text-base font-bold text-slate-800">สัดส่วนตามประเภทเรือ</h3>
+          <p class="text-xs text-slate-500">แบ่งตามเรือขนาดเล็ก ขนาดใหญ่ และแพขนานยนต์</p>
+        </div>
+        <div class="relative flex-grow flex items-center justify-center min-h-[260px]">
+          <canvas id="vesselPieChart"></canvas>
+        </div>
+        <div class="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 text-center text-xs mt-auto">
+          <div class="p-2 rounded-lg bg-sky-50 text-sky-800 font-medium">
+            <div class="text-[10px] text-sky-600">เรือขนาดเล็ก</div>
+            <div id="statSmallVessel" class="font-bold text-xs mt-0.5">-</div>
+          </div>
+          <div class="p-2 rounded-lg bg-indigo-50 text-indigo-800 font-medium">
+            <div class="text-[10px] text-indigo-600">เรือขนาดใหญ่</div>
+            <div id="statLargeVessel" class="font-bold text-xs mt-0.5">-</div>
+          </div>
+          <div class="p-2 rounded-lg bg-amber-50 text-amber-800 font-medium">
+            <div class="text-[10px] text-amber-600">แพขนานยนต์</div>
+            <div id="statFerryVessel" class="font-bold text-xs mt-0.5">-</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Ports Ranking -->
+    <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-800">10 อันดับท่าเรือที่มีผู้โดยสารสูงสุด</h3>
+          <p class="text-xs text-slate-500">ท่าเรือที่มีความหนาแน่นของการสัญจรทางน้ำมากที่สุด</p>
+        </div>
+        <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Top 10 Ports</span>
+      </div>
+      <div class="relative min-h-[280px]">
+        <canvas id="topPortsChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Detailed Data Table -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-800">ตารางข้อมูลท่าเรือทั้งหมด</h3>
+          <p class="text-xs text-slate-500">คลิกที่หัวตารางเพื่อเรียงลำดับ (Sort) และใช้ตัวกรองด้านบนเพื่อเจาะจงข้อมูล</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-slate-500 font-medium">แสดงทีละ:</label>
+          <select id="pageSizeSelect" onchange="changePageSize()" class="bg-slate-50 border border-slate-200 text-xs rounded-lg p-1.5 focus:ring-1 focus:ring-blue-500 outline-none">
+            <option value="15">15 แถว</option>
+            <option value="30">30 แถว</option>
+            <option value="50">50 แถว</option>
+            <option value="100">100 แถว</option>
+            <option value="ALL">ทั้งหมด</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200 select-none">
+              <th onclick="sortTable('province')" class="py-3 px-4 cursor-pointer hover:bg-slate-200/80 transition">
+                <div class="flex items-center gap-1">จังหวัด <span id="sort_province">↕</span></div>
+              </th>
+              <th onclick="sortTable('port_id')" class="py-3 px-3 cursor-pointer hover:bg-slate-200/80 transition text-center w-16">
+                <div class="flex items-center justify-center gap-1">ท่าที่ <span id="sort_port_id">↕</span></div>
+              </th>
+              <th onclick="sortTable('port_name')" class="py-3 px-4 cursor-pointer hover:bg-slate-200/80 transition">
+                <div class="flex items-center gap-1">ชื่อท่าเรือ <span id="sort_port_name">↕</span></div>
+              </th>
+              <th onclick="sortTable('route')" class="py-3 px-4 cursor-pointer hover:bg-slate-200/80 transition">
+                <div class="flex items-center gap-1">เส้นทางการเดินเรือ <span id="sort_route">↕</span></div>
+              </th>
+              <th onclick="sortTable('vessel_type')" class="py-3 px-3 cursor-pointer hover:bg-slate-200/80 transition text-center">
+                <div class="flex items-center justify-center gap-1">ประเภทเรือ <span id="sort_vessel_type">↕</span></div>
+              </th>
+              <th onclick="sortTable('trips')" class="py-3 px-4 cursor-pointer hover:bg-slate-200/80 transition text-right">
+                <div class="flex items-center justify-end gap-1">จำนวนเที่ยวเรือ <span id="sort_trips">↕</span></div>
+              </th>
+              <th onclick="sortTable('passengers')" class="py-3 px-4 cursor-pointer hover:bg-slate-200/80 transition text-right">
+                <div class="flex items-center justify-end gap-1">จำนวนผู้โดยสาร <span id="sort_passengers">↕</span></div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-slate-100 text-slate-700">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div id="tableInfoText">แสดงรายการที่ 1 ถึง 15 จาก 169 รายการ</div>
+        <div class="flex items-center gap-1" id="paginationControls">
+          <!-- Pagination Buttons -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>ระบบรายงานสถิตินี้พัฒนาขึ้นสำหรับสรุปข้อมูลการสัญจรทางเรือของประเทศไทย ปี 2568</p>
+      <p class="text-slate-400">พร้อมใช้งานบน GitHub Pages ทันที | พัฒนาด้วย Tailwind CSS และ Chart.js</p>
+    </div>
+  </footer>
+
+  <!-- Raw Data & Application Logic -->
+  <script>
+    // Complete Dataset (169 records from Table 14)
+    const rawData = [
+  {"province": "กระบี่", "port_id": 1, "port_name": "เกาะพีพี-ภูเก็ต(เรือโดยสาร) (ท่าเรืออ่าวต้นไทร)", "route": "เกาะพีพี - ภูเก็ต", "vessel_type": "เรือขนาดเล็ก", "trips": 64, "passengers": 1013},
+  {"province": "กระบี่", "port_id": 1, "port_name": "เกาะพีพี-ภูเก็ต(เรือโดยสาร) (ท่าเรืออ่าวต้นไทร)", "route": "เกาะพีพี - ภูเก็ต", "vessel_type": "เรือขนาดใหญ่", "trips": 5570, "passengers": 782417},
+  {"province": "กระบี่", "port_id": 2, "port_name": "ท่าเทียบเรือโดยสารปากคลองจิหลาด", "route": "ท่าเทียบเรือท่องเที่ยวปากคลองจิหลาด - เกาะพีพี", "vessel_type": "เรือขนาดเล็ก", "trips": 275, "passengers": 9929},
+  {"province": "กระบี่", "port_id": 2, "port_name": "ท่าเทียบเรือโดยสารปากคลองจิหลาด", "route": "ท่าเทียบเรือท่องเที่ยวปากคลองจิหลาด - เกาะพีพี", "vessel_type": "เรือขนาดใหญ่", "trips": 3958, "passengers": 338036},
+  {"province": "กระบี่", "port_id": 3, "port_name": "ท่าเทียบเรืออ่าวท่าเลน", "route": "ท่าเทียบเรืออ่าวท่าเลน (ท่าประมงเก่า) - เกาะยาวน้อย", "vessel_type": "เรือขนาดเล็ก", "trips": 6065, "passengers": 65950},
+  {"province": "กระบี่", "port_id": 4, "port_name": "ท่าเรือเกาะพีพี-ภูเก็ต(เรือเร็ว) (ท่าเรือแหลมตง)", "route": "ท่าเรือแหลมตง - ท่าเรือรัษฎา", "vessel_type": "เรือขนาดเล็ก", "trips": 11980, "passengers": 388128},
+  {"province": "กระบี่", "port_id": 4, "port_name": "ท่าเรือเกาะพีพี-ภูเก็ต(เรือเร็ว) (ท่าเรือแหลมตง)", "route": "ท่าเรือแหลมตง - ท่าเรือรัษฎา", "vessel_type": "เรือขนาดใหญ่", "trips": 204, "passengers": 10632},
+  {"province": "กระบี่", "port_id": 5, "port_name": "ท่าเรือคงคา - เกาะพีพี", "route": "ท่าเรือคงคา - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดเล็ก", "trips": 4347, "passengers": 136558},
+  {"province": "กระบี่", "port_id": 5, "port_name": "ท่าเรือคงคา - เกาะพีพี", "route": "ท่าเรือคงคา - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดใหญ่", "trips": 68, "passengers": 6102},
+  {"province": "กระบี่", "port_id": 6, "port_name": "ท่าเรือโดยสารหาดนพรัตน์ธารา - ท่าเรือเกาะพีพี", "route": "ท่าเรืออ่าวนาง - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดเล็ก", "trips": 179, "passengers": 6707},
+  {"province": "กระบี่", "port_id": 6, "port_name": "ท่าเรือโดยสารหาดนพรัตน์ธารา - ท่าเรือเกาะพีพี", "route": "ท่าเรืออ่าวนาง - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดใหญ่", "trips": 981, "passengers": 83327},
+  {"province": "กระบี่", "port_id": 7, "port_name": "ท่าเรือศาลาด่าน", "route": "ท่าเทียบเรือศาลาด่าน - เกาะลันตา - เกาะพีพี", "vessel_type": "เรือขนาดเล็ก", "trips": 5478, "passengers": 189123},
+  {"province": "กระบี่", "port_id": 7, "port_name": "ท่าเรือศาลาด่าน", "route": "ท่าเทียบเรือศาลาด่าน - เกาะลันตา - เกาะพีพี", "vessel_type": "เรือขนาดใหญ่", "trips": 1132, "passengers": 71665},
+  {"province": "กระบี่", "port_id": 8, "port_name": "ท่าเรือสวนเจ้าฟ้า", "route": "ท่าเทียบเรือเจ้าฟ้า - เกาะกลาง", "vessel_type": "เรือขนาดเล็ก", "trips": 27675, "passengers": 134077},
+  {"province": "กระบี่", "port_id": 9, "port_name": "ท่าเรือสวนสาธารณะธารา", "route": "ท่าเรือสวนสาธารณะธารา (ข้ามฟาก) - เกาะกลาง", "vessel_type": "เรือขนาดเล็ก", "trips": 20109, "passengers": 96351},
+  {"province": "กระบี่", "port_id": 10, "port_name": "ท่าเรือหาดนพรัตน์ธารา - จ.ภูเก็ต", "route": "ท่าเรือหาดนพรัตน์ธารา - ท่าเรือรัษฎา", "vessel_type": "เรือขนาดเล็ก", "trips": 235, "passengers": 7510},
+  {"province": "กระบี่", "port_id": 10, "port_name": "ท่าเรือหาดนพรัตน์ธารา - จ.ภูเก็ต", "route": "ท่าเรือหาดนพรัตน์ธารา - ท่าเรือรัษฎา", "vessel_type": "เรือขนาดใหญ่", "trips": 573, "passengers": 50084},
+  {"province": "กระบี่", "port_id": 11, "port_name": "ท่าเรือหาดนพรัตน์ธารา (ท่าเรือเอกชน) (ท่าเรือคลองแห้ง)", "route": "ท่าเรือคลองแห้ง - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดเล็ก", "trips": 8090, "passengers": 181448},
+  {"province": "กระบี่", "port_id": 12, "port_name": "ท่าเรือหาดนพรัตน์ธารา (สปีดโบ๊ท)", "route": "ท่าเรือหาดนพรัตน์ธารา - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดเล็ก", "trips": 51839, "passengers": 789922},
+  {"province": "กระบี่", "port_id": 12, "port_name": "ท่าเรือหาดนพรัตน์ธารา (สปีดโบ๊ท)", "route": "ท่าเรือหาดนพรัตน์ธารา - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดใหญ่", "trips": 16, "passengers": 2830},
+  {"province": "กระบี่", "port_id": 13, "port_name": "ท่าเรืออ่าวนาง", "route": "ท่าเรืออ่าวนาง - ท่าเรืออ่าวต้นไทร", "vessel_type": "เรือขนาดเล็ก", "trips": 27678, "passengers": 231066},
+  {"province": "กระบี่", "port_id": 14, "port_name": "ท่าเรืออ่าวน้ำเมา", "route": "ท่าเรืออ่าวน้ำเมา - ท่าเรือหาดไร่เลย์", "vessel_type": "เรือขนาดเล็ก", "trips": 38348, "passengers": 221332},
+  {"province": "กระบี่", "port_id": 15, "port_name": "แพขนานยนต์บ้านคลองหมาก", "route": "ท่าเรือคลองหมาก - ท่าเรือบ้านหัวหิน", "vessel_type": "แพขนานยนต์", "trips": 23919, "passengers": 959600},
+  {"province": "กระบี่", "port_id": 16, "port_name": "แพขนานยนต์บ้านหัวหิน", "route": "ท่าเทียบเรือแพขนานยนต์ - หัวหิน - คลองหมาก", "vessel_type": "แพขนานยนต์", "trips": 23870, "passengers": 961999},
+  {"province": "จันทบุรี", "port_id": 1, "port_name": "ท่าเทียบเรือองค์การบริหารส่วนจังหวัด (ท่าเทียบเรือขลุง)", "route": "ท่าเทียบเรือองค์การบริหารส่วนจังหวัด (ท่าเทียบเรือขลุง) - บ้านโรงไม้", "vessel_type": "เรือขนาดเล็ก", "trips": 9301, "passengers": 140786},
+  {"province": "ชลบุรี", "port_id": 1, "port_name": "ท่าเทียบเรือแหลมบาลีฮาย", "route": "ท่าเทียบเรือแหลมบาลีฮาย - ท่าเรือหาดตาแหวนเกาะล้าน", "vessel_type": "เรือขนาดเล็ก", "trips": 6874, "passengers": 312640},
+  {"province": "ชลบุรี", "port_id": 1, "port_name": "ท่าเทียบเรือแหลมบาลีฮาย", "route": "ท่าเทียบเรือแหลมบาลีฮาย - ท่าเรือหาดตาแหวนเกาะล้าน", "vessel_type": "เรือขนาดใหญ่", "trips": 61040, "passengers": 4407250},
+  {"province": "ชลบุรี", "port_id": 2, "port_name": "ท่าเรือเกาะลอย", "route": "ท่าเรือเกาะลอย - ท่าเรือเทววงษ์ (เกาะสีชัง)", "vessel_type": "เรือขนาดเล็ก", "trips": 446, "passengers": 20486},
+  {"province": "ชลบุรี", "port_id": 2, "port_name": "ท่าเรือเกาะลอย", "route": "ท่าเรือเกาะลอย - ท่าเรือเทววงษ์ (เกาะสีชัง)", "vessel_type": "เรือขนาดใหญ่", "trips": 4471, "passengers": 408621},
+  {"province": "ชลบุรี", "port_id": 3, "port_name": "ท่าเรือเทววงษ์", "route": "ท่าเรือเทววงษ์ - ท่าเรือเกาะลอย (เกาะสีชัง)", "vessel_type": "เรือขนาดเล็ก", "trips": 461, "passengers": 21024},
+  {"province": "ชลบุรี", "port_id": 3, "port_name": "ท่าเรือเทววงษ์", "route": "ท่าเรือเทววงษ์ - ท่าเรือเกาะลอย (เกาะสีชัง)", "vessel_type": "เรือขนาดใหญ่", "trips": 4516, "passengers": 405381},
+  {"province": "ชุมพร", "port_id": 1, "port_name": "ท่าเทียบเรือเกาะพิทักษ์", "route": "ท่าเทียบเรือเกาะพิทักษ์-บ้านเกาะพิทักษ์", "vessel_type": "เรือขนาดเล็ก", "trips": 1348, "passengers": 4233},
+  {"province": "ชุมพร", "port_id": 2, "port_name": "ท่าเทียบเรือชุมชนบ้านเกาะเตียบ", "route": "ชุมชนบ้านตะเกียบ - หมู่เกาะชุมพร", "vessel_type": "เรือขนาดเล็ก", "trips": 344, "passengers": 4658},
+  {"province": "ชุมพร", "port_id": 3, "port_name": "ท่าเทียบเรือชุมชนบ้านทุ่งมหา", "route": "ท่าเรือชุมชนบ้านทุ่งมหา - หมู่เกาะชุมพร", "vessel_type": "เรือขนาดเล็ก", "trips": 301, "passengers": 3975},
+  {"province": "ชุมพร", "port_id": 4, "port_name": "ท่าเทียบเรือโชคกัลปังหา", "route": "ท่าเรือโชคกัลปังหา - เกาะเต่า", "vessel_type": "เรือขนาดเล็ก", "trips": 271, "passengers": 8854},
+  {"province": "ชุมพร", "port_id": 4, "port_name": "ท่าเทียบเรือโชคกัลปังหา", "route": "ท่าเรือโชคกัลปังหา - เกาะเต่า", "vessel_type": "เรือขนาดใหญ่", "trips": 13, "passengers": 865},
+  {"province": "ชุมพร", "port_id": 5, "port_name": "ท่าเทียบเรือทะเลทรัพย์", "route": "ท่าเรือทะเลทรัพย์ - เกาะเต่า", "vessel_type": "เรือขนาดเล็ก", "trips": 243, "passengers": 6708},
+  {"province": "ชุมพร", "port_id": 5, "port_name": "ท่าเทียบเรือทะเลทรัพย์", "route": "ท่าเรือทะเลทรัพย์ - เกาะเต่า", "vessel_type": "เรือขนาดใหญ่", "trips": 2, "passengers": 142},
+  {"province": "ชุมพร", "port_id": 6, "port_name": "ท่าเทียบเรือบริษัทบุญศิริ (ท่าเทียบเรือเทศบาลปากน้ำชุมพร)", "route": "ท่าเทียบเรือเทศบาลตำบลปากน้ำชุมพร-หมู่เกาะชุมพร", "vessel_type": "เรือขนาดเล็ก", "trips": 146, "passengers": 4011},
+  {"province": "ชุมพร", "port_id": 6, "port_name": "ท่าเทียบเรือบริษัทบุญศิริ (ท่าเทียบเรือเทศบาลปากน้ำชุมพร)", "route": "ท่าเทียบเรือเทศบาลตำบลปากน้ำชุมพร-หมู่เกาะชุมพร", "vessel_type": "เรือขนาดใหญ่", "trips": 8, "passengers": 548},
+  {"province": "ชุมพร", "port_id": 7, "port_name": "ท่าเทียบเรือพรทวีสิน", "route": "ท่าเรือพรทวีสิน - เกาะเต่า", "vessel_type": "เรือขนาดเล็ก", "trips": 170, "passengers": 6367},
+  {"province": "ชุมพร", "port_id": 7, "port_name": "ท่าเทียบเรือพรทวีสิน", "route": "ท่าเรือพรทวีสิน - เกาะเต่า", "vessel_type": "เรือขนาดใหญ่", "trips": 85, "passengers": 5199},
+  {"province": "ชุมพร", "port_id": 8, "port_name": "ท่าเทียบเรือลมพระยา", "route": "ท่าเรือลมพระยา(ชุมพร) - เกาะเต่า - เกาะพะงัน - เกาะสมุย", "vessel_type": "เรือขนาดใหญ่", "trips": 1560, "passengers": 339401},
+  {"province": "ตรัง", "port_id": 1, "port_name": "ท่าเทียบเรือควนตุ้งกู", "route": "ท่องทะเลตรัง , ท่าเทียบเรือควนตุ้งกู - ท่าเทียบเรือบ้านเกาะมุกด์", "vessel_type": "เรือขนาดเล็ก", "trips": 6953, "passengers": 63381},
+  {"province": "ตรัง", "port_id": 1, "port_name": "ท่าเทียบเรือควนตุ้งกู", "route": "ท่องทะเลตรัง , ท่าเทียบเรือควนตุ้งกู - ท่าเทียบเรือบ้านเกาะมุกด์", "vessel_type": "เรือขนาดใหญ่", "trips": 2, "passengers": 110},
+  {"province": "ตรัง", "port_id": 2, "port_name": "ท่าเทียบเรือบ้านหาดเจ้าไหม (ท่าเรือยาดยาว)", "route": "ท่องทะเลตรัง , ท่าเทียบเรือหาดยาว - ท่าเทียบเรือบ้านพร้าว เกาะลิบง", "vessel_type": "เรือขนาดเล็ก", "trips": 2675, "passengers": 35758},
+  {"province": "ตรัง", "port_id": 3, "port_name": "ท่าเทียบเรือปากเมง", "route": "ท่องทะเลตรัง , เกาะไหง", "vessel_type": "เรือขนาดเล็ก", "trips": 2630, "passengers": 56476},
+  {"province": "ตรัง", "port_id": 3, "port_name": "ท่าเทียบเรือปากเมง", "route": "ท่องทะเลตรัง , เกาะไหง", "vessel_type": "เรือขนาดใหญ่", "trips": 37, "passengers": 2412},
+  {"province": "ตราด", "port_id": 1, "port_name": "ท่าเทียบเรือบางเบ้า", "route": "ท่าเรือบ้านบางเบ้า - หมู่เกาะรัง เกาะหวาย", "vessel_type": "เรือขนาดเล็ก", "trips": 4068, "passengers": 104963},
+  {"province": "ตราด", "port_id": 1, "port_name": "ท่าเทียบเรือบางเบ้า", "route": "ท่าเรือบ้านบางเบ้า - หมู่เกาะรัง เกาะหวาย", "vessel_type": "เรือขนาดใหญ่", "trips": 97, "passengers": 5964},
+  {"province": "ตราด", "port_id": 2, "port_name": "ท่าเทียบเรือเพื่อการท่องเที่ยวแหลมงอบ (ท่าเรืออนุสรณ์กรมหลวงชุมพร)", "route": "ท่าเทียบเรือเพื่อการท่องเที่ยวแหลมงอบ - เกาะหมาก", "vessel_type": "เรือขนาดเล็ก", "trips": 3075, "passengers": 41345},
+  {"province": "ตราด", "port_id": 3, "port_name": "ท่าเรือเฟอร์รี บริษัท เกาะช้าง อินเตอร์เนชั่นแนล จำกัด (แหลมงอบ - เกาะช้าง)", "route": "ท่าเรือเฟอร์รี บริษัท เกาะช้างอินเตอร์เนชั่นแนล จำกัด (แหลมงอบ - เกาะช้าง)", "vessel_type": "เรือขนาดใหญ่", "trips": 20200, "passengers": 2890977},
+  {"province": "ตราด", "port_id": 4, "port_name": "ท่าเรือแหลมศอก", "route": "ท่าเรือแหลมศอก - เกาะกูด", "vessel_type": "เรือขนาดเล็ก", "trips": 1661, "passengers": 66359},
+  {"province": "ตราด", "port_id": 4, "port_name": "ท่าเรือแหลมศอก", "route": "ท่าเรือแหลมศอก - เกาะกูด", "vessel_type": "เรือขนาดใหญ่", "trips": 2675, "passengers": 161196},
+  {"province": "นครศรีธรรมราช", "port_id": 1, "port_name": "ท่าเรือข้ามฟากปากพนังฝั่งตะวันตก", "route": "เทศบาลเมืองปากพนังฝั่งตะวันตก - ฝั่งตะวันออก", "vessel_type": "เรือขนาดเล็ก", "trips": 13401, "passengers": 230513},
+  {"province": "นครศรีธรรมราช", "port_id": 2, "port_name": "ท่าเรือข้ามฟากปากพนังฝั่งตะวันออก", "route": "เทศบาลเมืองปากพนังฝั่งตะวันตก - ฝั่งตะวันออก", "vessel_type": "เรือขนาดเล็ก", "trips": 13403, "passengers": 230405},
+  {"province": "นราธิวาส", "port_id": 1, "port_name": "ท่าเรือแพขนานยนต์", "route": "บ้านตาบา อ.ตากใบ - บ้านกาลังกูโบว์ (มาเลเซีย)", "vessel_type": "แพขนานยนต์", "trips": 11650, "passengers": 269043},
+  {"province": "นราธิวาส", "port_id": 2, "port_name": "ท่าเรือรัชดาภิเษก", "route": "ท่าเรือรัชดาภิเษก-บ้านกะลังกูโบร์ (มาเลเซีย)", "vessel_type": "เรือขนาดเล็ก", "trips": 43034, "passengers": 364937},
+  {"province": "ประจวบคีรีขันธ์", "port_id": 1, "port_name": "ท่าเทียบเรือท่องเที่ยว คลองเขาแดง", "route": "ท่าเรือคลองเขาแดง - เขาสามร้อยยอด", "vessel_type": "เรือขนาดเล็ก", "trips": 5221, "passengers": 24225},
+  {"province": "ประจวบคีรีขันธ์", "port_id": 2, "port_name": "ท่าเทียบเรือท่องเที่ยวท่าเรือเขาตะเกียบ", "route": "-", "vessel_type": "เรือขนาดเล็ก", "trips": 3872, "passengers": 12126},
+  {"province": "ประจวบคีรีขันธ์", "port_id": 3, "port_name": "ท่าเรือท่องเที่ยว เกาะทะลุไอส์แลนด์รีสอร์ท", "route": "ท่าเรือเกาะทะลุไอส์แลนด์ รีสอร์ท - เกาะทะลุ", "vessel_type": "เรือขนาดเล็ก", "trips": 407, "passengers": 6894},
+  {"province": "ประจวบคีรีขันธ์", "port_id": 4, "port_name": "ท่าเรือท่องเที่ยว ปากคลองบางสะพานน้อย-เกาะทะลุ", "route": "ปากคลองบางสะพานน้อย - เกาะทะลุ", "vessel_type": "เรือขนาดเล็ก", "trips": 1130, "passengers": 21167},
+  {"province": "ประจวบคีรีขันธ์", "port_id": 4, "port_name": "ท่าเรือท่องเที่ยว ปากคลองบางสะพานน้อย-เกาะทะลุ", "route": "ปากคลองบางสะพานน้อย - เกาะทะลุ", "vessel_type": "เรือขนาดใหญ่", "trips": 7, "passengers": 405},
+  {"province": "ประจวบคีรีขันธ์", "port_id": 5, "port_name": "ท่าเรือท่องเที่ยว วนอุทยานปราณบุรี", "route": "ภายในวนอุทยานปรานบุรี", "vessel_type": "เรือขนาดเล็ก", "trips": 1993, "passengers": 7606},
+  {"province": "ปัตตานี", "port_id": 1, "port_name": "จุดท่องเที่ยวล่องเรือเชิงนิเวศ ตำบลบางปู จังหวัดปัตตานี", "route": "อุโมงค์ป่าโกงกาง", "vessel_type": "เรือขนาดเล็ก", "trips": 271, "passengers": 2190},
+  {"province": "พังงา", "port_id": 1, "port_name": "ท่าเทียบเรือเกียรติเจริญชัย 1 (เหนือ)", "route": "ท่าเทียบเรือเกียรติเจริญชัย 1 (เหนือ) - อ่าวพังงา เกาะปันหยี", "vessel_type": "เรือขนาดเล็ก", "trips": 2087, "passengers": 50425},
+  {"province": "พังงา", "port_id": 1, "port_name": "ท่าเทียบเรือเกียรติเจริญชัย 1 (เหนือ)", "route": "ท่าเทียบเรือเกียรติเจริญชัย 1 (เหนือ) - อ่าวพังงา เกาะปันหยี", "vessel_type": "เรือขนาดใหญ่", "trips": 54, "passengers": 2994},
+  {"province": "พังงา", "port_id": 2, "port_name": "ท่าเทียบเรือเตาถ่าน", "route": "ท่าเทียบเรือเตาถ่าน - หมู่เกาะสิมิลัน", "vessel_type": "เรือขนาดเล็ก", "trips": 516, "passengers": 20816},
+  {"province": "พังงา", "port_id": 2, "port_name": "ท่าเทียบเรือเตาถ่าน", "route": "ท่าเทียบเรือเตาถ่าน - หมู่เกาะสิมิลัน", "vessel_type": "เรือขนาดใหญ่", "trips": 39, "passengers": 2155},
+  {"province": "พังงา", "port_id": 3, "port_name": "ท่าเทียบเรือทับละมุ (สะพานปูน)", "route": "ท่าเทียบเรือทับละมุ (สะพานปูน) บริษัทกะละมัง จำกัด - หมู่เกาะสิมิลัน - หมู่เกาะสุรินทร์", "vessel_type": "เรือขนาดเล็ก", "trips": 1726, "passengers": 54637},
+  {"province": "พังงา", "port_id": 3, "port_name": "ท่าเทียบเรือทับละมุ (สะพานปูน)", "route": "ท่าเทียบเรือทับละมุ (สะพานปูน) บริษัทกะละมัง จำกัด - หมู่เกาะสิมิลัน - หมู่เกาะสุรินทร์", "vessel_type": "เรือขนาดใหญ่", "trips": 62, "passengers": 3583},
+  {"province": "พังงา", "port_id": 4, "port_name": "ท่าเทียบเรือท่าด่าน (กลาง)", "route": "ท่าเทียบเรือท่าด่าน (กลาง)-ท่าเรืออ่าวพังงา-ท่าเรือเกาะปันหยี", "vessel_type": "เรือขนาดเล็ก", "trips": 7, "passengers": 69},
+  {"province": "พังงา", "port_id": 5, "port_name": "ท่าเทียบเรือบ้านเกาะกลาง", "route": "ท่าเทียบเรือบ้านเกาะกลาง - อ่าวพังงา", "vessel_type": "เรือขนาดเล็ก", "trips": 925, "passengers": 6698},
+  {"province": "พังงา", "port_id": 6, "port_name": "ท่าเทียบเรือบ้านท่าด่าน (เหนือ)", "route": "ท่าเรือท่าด่าน(เหนือ) - อ่าวพังงา - เกาะปันหยี", "vessel_type": "เรือขนาดเล็ก", "trips": 1178, "passengers": 10394},
+  {"province": "พังงา", "port_id": 7, "port_name": "ท่าเทียบเรือบ้านน้ำเค็ม", "route": "ท่าเรือบริษัทสิมิลัน ชาร์เตอร์-ท่าเรือหมู่เกาะสิมิลัน", "vessel_type": "เรือขนาดเล็ก", "trips": 663, "passengers": 20869},
+  {"province": "พังงา", "port_id": 7, "port_name": "ท่าเทียบเรือบ้านน้ำเค็ม", "route": "ท่าเรือบริษัทสิมิลัน ชาร์เตอร์-ท่าเรือหมู่เกาะสิมิลัน", "vessel_type": "เรือขนาดใหญ่", "trips": 137, "passengers": 8274},
+  {"province": "พังงา", "port_id": 8, "port_name": "ท่าเทียบเรือบ้านในหงบ", "route": "ท่าเทียบเรือบ้านในหงบ-อ่าวพังงา", "vessel_type": "เรือขนาดเล็ก", "trips": 916, "passengers": 5181},
+  {"province": "พังงา", "port_id": 9, "port_name": "ท่าเทียบเรือบ้านหินร่ม", "route": "ท่าเทียบเรือบ้านหินร่ม-เขาตะปู-ถ้ำลอด-เกาะปันหยี-เกาะพนัก-ถ้ำแก้ว-ถ้ำนกกระเรียน", "vessel_type": "เรือขนาดเล็ก", "trips": 1166, "passengers": 7713},
+  {"province": "พังงา", "port_id": 10, "port_name": "ท่าเทียบเรือมาเนาะ", "route": "ท่าเทียบเรือมาเนาะ - บางโรง - อ่าวนาง - พีพี - ลันตา - ท่าด่าน", "vessel_type": "เรือขนาดเล็ก", "trips": 342, "passengers": 7604},
+  {"province": "พังงา", "port_id": 11, "port_name": "ท่าเทียบเรือว้าวอันดามัน จำกัด", "route": "ท่าเรือว้าวอันดามัน - หมู่เกาะสิมิลัน (สปีดโบ๊ท) // ท่าเรือว้าวอันดามัน - จุดดำน้ำเขาหน้ายักษ์ (เรือหางยาว)", "vessel_type": "เรือขนาดเล็ก", "trips": 130, "passengers": 4959},
+  {"province": "พังงา", "port_id": 11, "port_name": "ท่าเทียบเรือว้าวอันดามัน จำกัด", "route": "ท่าเรือว้าวอันดามัน - หมู่เกาะสิมิลัน (สปีดโบ๊ท) // ท่าเรือว้าวอันดามัน - จุดดำน้ำเขาหน้ายักษ์ (เรือหางยาว)", "vessel_type": "เรือขนาดใหญ่", "trips": 19, "passengers": 1154},
+  {"province": "พังงา", "port_id": 12, "port_name": "ท่าเทียบเรืออุทยานแห่งชาติอ่าวพังงา", "route": "-", "vessel_type": "เรือขนาดเล็ก", "trips": 589, "passengers": 3785},
+  {"province": "พังงา", "port_id": 13, "port_name": "ท่าเรือสุระกุล", "route": "ท่าเทียบเรือสุระกุล - อ่าวพังงา", "vessel_type": "เรือขนาดเล็ก", "trips": 1735, "passengers": 22664},
+  {"province": "เพชรบุรี", "port_id": 1, "port_name": "เขื่อนแก่งกระจาน", "route": "บริเวณอ่างเก็บน้ำแก่งกระจาน", "vessel_type": "เรือขนาดเล็ก", "trips": 2762, "passengers": 12937},
+  {"province": "เพชรบุรี", "port_id": 2, "port_name": "หาดชะอำ", "route": "บริเวณรอบชายหาดชะอำ", "vessel_type": "เรือขนาดเล็ก", "trips": 9902, "passengers": 35379},
+  {"province": "ภูเก็ต", "port_id": 1, "port_name": "ท่าเทียบเรือโคโค่ เพียร์ ภูเก็ต", "route": "เกาะต่างในจังหวัดภูเก็ต", "vessel_type": "เรือขนาดเล็ก", "trips": 628, "passengers": 11972},
+  {"province": "ภูเก็ต", "port_id": 1, "port_name": "ท่าเทียบเรือโคโค่ เพียร์ ภูเก็ต", "route": "เกาะต่างในจังหวัดภูเก็ต", "vessel_type": "เรือขนาดใหญ่", "trips": 7, "passengers": 422},
+  {"province": "ภูเก็ต", "port_id": 2, "port_name": "ท่าเทียบเรือเจียรวานิช", "route": "ท่าเรือ เจียรวานิช - เกาะยาวใหญ่", "vessel_type": "เรือขนาดเล็ก", "trips": 1093, "passengers": 41232},
+  {"province": "ภูเก็ต", "port_id": 2, "port_name": "ท่าเทียบเรือเจียรวานิช", "route": "ท่าเรือ เจียรวานิช - เกาะยาวใหญ่", "vessel_type": "เรือขนาดใหญ่", "trips": 222, "passengers": 12757},
+  {"province": "ภูเก็ต", "port_id": 3, "port_name": "ท่าเทียบเรือซีแองเจิ้ล", "route": "ท่าเรือ ซีแองเจิล ครุยซ์ - เกาะภูเก็ต - เกาะพีพี - กระบี่", "vessel_type": "เรือขนาดเล็ก", "trips": 680, "passengers": 30532},
+  {"province": "ภูเก็ต", "port_id": 3, "port_name": "ท่าเทียบเรือซีแองเจิ้ล", "route": "ท่าเรือ ซีแองเจิล ครุยซ์ - เกาะภูเก็ต - เกาะพีพี - กระบี่", "vessel_type": "เรือขนาดใหญ่", "trips": 1500, "passengers": 93214},
+  {"province": "ภูเก็ต", "port_id": 4, "port_name": "ท่าเทียบเรือบางโรง", "route": "ท่าเรือบางโรง - เกาะยาวน้อย", "vessel_type": "เรือขนาดเล็ก", "trips": 11249, "passengers": 249511},
+  {"province": "ภูเก็ต", "port_id": 4, "port_name": "ท่าเทียบเรือบางโรง", "route": "ท่าเรือบางโรง - เกาะยาวน้อย", "vessel_type": "เรือขนาดใหญ่", "trips": 38, "passengers": 2145},
+  {"province": "ภูเก็ต", "port_id": 5, "port_name": "ท่าเทียบเรือพรานอันดามันทราเวิล", "route": "ท่าเรือพรานอันดามัน - เกาะสิเหร่ - เกาะพีพี", "vessel_type": "เรือขนาดเล็ก", "trips": 961, "passengers": 34274},
+  {"province": "ภูเก็ต", "port_id": 5, "port_name": "ท่าเทียบเรือพรานอันดามันทราเวิล", "route": "ท่าเรือพรานอันดามัน - เกาะสิเหร่ - เกาะพีพี", "vessel_type": "เรือขนาดใหญ่", "trips": 9, "passengers": 931},
+  {"province": "ภูเก็ต", "port_id": 6, "port_name": "ท่าเทียบเรือภูเก็ตโบ๊ทลากูน", "route": "ภูเก็ต - เกาะต่างๆ", "vessel_type": "เรือขนาดเล็ก", "trips": 10088, "passengers": 136459},
+  {"province": "ภูเก็ต", "port_id": 7, "port_name": "ท่าเทียบเรือภูเก็ตยอร์ชเฮเว่น", "route": "ท่าจอดเรือท่องเที่ยว", "vessel_type": "เรือขนาดเล็ก", "trips": 198, "passengers": 5690},
+  {"province": "ภูเก็ต", "port_id": 8, "port_name": "ท่าเทียบเรือยามู", "route": "ท่าเรือยามู -เกาะไข่ - เกาะพีพี - เกาะยาวใหญ่", "vessel_type": "เรือขนาดเล็ก", "trips": 1356, "passengers": 43531},
+  {"province": "ภูเก็ต", "port_id": 8, "port_name": "ท่าเทียบเรือยามู", "route": "ท่าเรือยามู -เกาะไข่ - เกาะพีพี - เกาะยาวใหญ่", "vessel_type": "เรือขนาดใหญ่", "trips": 21, "passengers": 1124},
+  {"province": "ภูเก็ต", "port_id": 9, "port_name": "ท่าเทียบเรือรอยัลภูเก็ตมารีน่า", "route": "ท่าเรือคริสตัล - เกาะพีพี - พังงา", "vessel_type": "เรือขนาดเล็ก", "trips": 15836, "passengers": 463644},
+  {"province": "ภูเก็ต", "port_id": 9, "port_name": "ท่าเทียบเรือรอยัลภูเก็ตมารีน่า", "route": "ท่าเรือคริสตัล - เกาะพีพี - พังงา", "vessel_type": "เรือขนาดใหญ่", "trips": 3, "passengers": 1082},
+  {"province": "ภูเก็ต", "port_id": 10, "port_name": "ท่าเทียบเรือรุ่งสยาม", "route": "ท่าเรือ รุ่งสยาม - เกาะภูเก็ต - เกาะพีพี", "vessel_type": "เรือขนาดเล็ก", "trips": 3455, "passengers": 148330},
+  {"province": "ภูเก็ต", "port_id": 10, "port_name": "ท่าเทียบเรือรุ่งสยาม", "route": "ท่าเรือ รุ่งสยาม - เกาะภูเก็ต - เกาะพีพี", "vessel_type": "เรือขนาดใหญ่", "trips": 146, "passengers": 7576},
+  {"province": "ภูเก็ต", "port_id": 11, "port_name": "ท่าเทียบเรือวานิช", "route": "ท่าเรือ วานิช - เกาะไม้ท่อน - เกาะไข่ - พีพี", "vessel_type": "เรือขนาดเล็ก", "trips": 2792, "passengers": 113809},
+  {"province": "ภูเก็ต", "port_id": 11, "port_name": "ท่าเทียบเรือวานิช", "route": "ท่าเรือ วานิช - เกาะไม้ท่อน - เกาะไข่ - พีพี", "vessel_type": "เรือขนาดใหญ่", "trips": 82, "passengers": 4556},
+  {"province": "ภูเก็ต", "port_id": 12, "port_name": "ท่าเทียบเรือสินธุภูเก็ต", "route": "ท่าเรือ เธียรสินธ์ - เกาะยาวใหญ่", "vessel_type": "เรือขนาดเล็ก", "trips": 3124, "passengers": 87349},
+  {"province": "ภูเก็ต", "port_id": 12, "port_name": "ท่าเทียบเรือสินธุภูเก็ต", "route": "ท่าเรือ เธียรสินธ์ - เกาะยาวใหญ่", "vessel_type": "เรือขนาดใหญ่", "trips": 9, "passengers": 529},
+  {"province": "ภูเก็ต", "port_id": 13, "port_name": "ท่าเทียบเรือแหลมหิน", "route": "ท่าเรือ บ้านแหลมใหญ่ - เกาะยาวใหญ่ - ภูเก็ต", "vessel_type": "เรือขนาดเล็ก", "trips": 484, "passengers": 10054},
+  {"province": "ภูเก็ต", "port_id": 13, "port_name": "ท่าเทียบเรือแหลมหิน", "route": "ท่าเรือ บ้านแหลมใหญ่ - เกาะยาวใหญ่ - ภูเก็ต", "vessel_type": "เรือขนาดใหญ่", "trips": 4, "passengers": 216},
+  {"province": "ภูเก็ต", "port_id": 14, "port_name": "ท่าเทียบเรืออ่าวฉลอง", "route": "ท่าเรืออ่าวฉลอง-เกาะพีพี-อ่าวต้นไทร", "vessel_type": "เรือขนาดเล็ก", "trips": 29619, "passengers": 720533},
+  {"province": "ภูเก็ต", "port_id": 15, "port_name": "ท่าเทียบเรืออ่าวปอ", "route": "ท่าเรืออ่าวปอ - เกาะนาคา", "vessel_type": "เรือขนาดเล็ก", "trips": 11497, "passengers": 359518},
+  {"province": "ภูเก็ต", "port_id": 15, "port_name": "ท่าเทียบเรืออ่าวปอ", "route": "ท่าเรืออ่าวปอ - เกาะนาคา", "vessel_type": "เรือขนาดใหญ่", "trips": 9, "passengers": 989},
+  {"province": "ภูเก็ต", "port_id": 16, "port_name": "ท่าเทียบเรืออ่าวปอแกรนด์มารีน่า", "route": "ท่าจอดเรือท่องเที่ยว", "vessel_type": "เรือขนาดเล็ก", "trips": 31, "passengers": 1006},
+  {"province": "ภูเก็ต", "port_id": 17, "port_name": "ท่าเทียบเรือเอเชียมารีน่า", "route": "ท่าเรือเอเซียมารีน่า - กระบี่", "vessel_type": "เรือขนาดเล็ก", "trips": 6826, "passengers": 230578},
+  {"province": "ภูเก็ต", "port_id": 18, "port_name": "ท่าเรือรัษฎา", "route": "ท่าเรือ รัษฎา - ภูเก็ต - พีพี", "vessel_type": "เรือขนาดเล็ก", "trips": 7840, "passengers": 336304},
+  {"province": "ภูเก็ต", "port_id": 18, "port_name": "ท่าเรือรัษฎา", "route": "ท่าเรือ รัษฎา - ภูเก็ต - พีพี", "vessel_type": "เรือขนาดใหญ่", "trips": 15323, "passengers": 982416},
+  {"province": "ภูเก็ต", "port_id": 19, "port_name": "ท่าเรือวิสิษฐ์ พันวา", "route": "ท่าเรือ วิสิษฐ์พันวา - เกาะไข่นอก - เกาะไข่ใน", "vessel_type": "เรือขนาดเล็ก", "trips": 5473, "passengers": 192796},
+  {"province": "ภูเก็ต", "port_id": 19, "port_name": "ท่าเรือวิสิษฐ์ พันวา", "route": "ท่าเรือ วิสิษฐ์พันวา - เกาะไข่นอก - เกาะไข่ใน", "vessel_type": "เรือขนาดใหญ่", "trips": 313, "passengers": 16963},
+  {"province": "ภูเก็ต", "port_id": 20, "port_name": "ท่าเรือหาดราไวย์", "route": "ทาเรือราไวย์ - เกาะเฮ - เกาะราชา", "vessel_type": "เรือขนาดเล็ก", "trips": 8, "passengers": 362},
+  {"province": "ภูเก็ต", "port_id": 21, "port_name": "ท่าเรือยิปซี", "route": "-", "vessel_type": "เรือขนาดเล็ก", "trips": 1371, "passengers": 49702},
+  {"province": "ภูเก็ต", "port_id": 21, "port_name": "ท่าเรือยิปซี", "route": "-", "vessel_type": "เรือขนาดใหญ่", "trips": 14, "passengers": 721},
+  {"province": "ยะลา", "port_id": 1, "port_name": "จุดขึ้น-ลงเรือ ตาพะเยา จังหวัดยะลา", "route": "ภายในอ่างเก็บน้ำเขื่อนบางลาง", "vessel_type": "เรือขนาดเล็ก", "trips": 648, "passengers": 5682},
+  {"province": "ระนอง", "port_id": 1, "port_name": "ท่าเทียบเรืออุทยานแห่งชาติแหลมสน (บางเบน)", "route": "ท่าเทียบเรืออุทยานแหลมสน - เกาะค้างคาว - เกาะญึ่ปุ่น - เกาะกำ", "vessel_type": "เรือขนาดเล็ก", "trips": 289, "passengers": 2038},
+  {"province": "ระนอง", "port_id": 2, "port_name": "ท่าเรือแกรนอันดามันคลับ-เกาะสน (ประเทศพม่า)", "route": "ท่าเรือแกรนอันดามันคลับ-เกาะสน(ประเทศพม่า)", "vessel_type": "เรือขนาดเล็ก", "trips": 771, "passengers": 21411},
+  {"province": "ระนอง", "port_id": 2, "port_name": "ท่าเรือแกรนอันดามันคลับ-เกาะสน (ประเทศพม่า)", "route": "ท่าเรือแกรนอันดามันคลับ-เกาะสน(ประเทศพม่า)", "vessel_type": "เรือขนาดใหญ่", "trips": 6, "passengers": 387},
+  {"province": "ระนอง", "port_id": 3, "port_name": "ท่าเรือเทศบาลตำบลปากน้ำ", "route": "ท่าเรือเทศบาลปากน้ำ-เกาะช้าง-เกาะพยาม", "vessel_type": "เรือขนาดเล็ก", "trips": 6982, "passengers": 119352},
+  {"province": "ระนอง", "port_id": 4, "port_name": "ท่าเรือเทศบาลปากน้ำ-เกาะสอง (ประเทศพม่า)", "route": "ท่าเรือเทศบาลปากน้ำ-เกาะสอง(ประเทศพม่า)", "vessel_type": "เรือขนาดเล็ก", "trips": 32792, "passengers": 318692},
+  {"province": "ระนอง", "port_id": 5, "port_name": "ท่าเรือประภาคารศุลกากร-เกาะคู่ (ประเทศพม่า)", "route": "ท่าเทียบเรือศุลกากร (ประภาคาร) - เกาะคู่", "vessel_type": "เรือขนาดเล็ก", "trips": 5691, "passengers": 73588},
+  {"province": "ระยอง", "port_id": 1, "port_name": "ท่าเรือโชคกฤษดา", "route": "ท่าเรือโชคกฤษดา - ท่าเรือหน้าด่านเกาะเสม็ด", "vessel_type": "เรือขนาดเล็ก", "trips": 1847, "passengers": 23294},
+  {"province": "ระยอง", "port_id": 2, "port_name": "ท่าเรือนวลทิพย์", "route": "ท่าเรือนวลทิพย์ - ท่าเรือหน้าด่านเกาะเสม็ด", "vessel_type": "เรือขนาดเล็ก", "trips": 17345, "passengers": 402348},
+  {"province": "ระยอง", "port_id": 3, "port_name": "ท่าเรือศรีบ้านเพ", "route": "ท่าเรือเทศบาลศรีบ้านเพ - ท่าเรือหน้าด่านเกาะเสม็ด", "vessel_type": "เรือขนาดเล็ก", "trips": 6447, "passengers": 143904},
+  {"province": "ระยอง", "port_id": 4, "port_name": "ท่าเรือเสรีบ้านเพ", "route": "ท่าเรือเสรีบ้านเพ - อ่าวพร้าว - ท่าเรือหน้าด่านเกาะเสม็ด", "vessel_type": "เรือขนาดเล็ก", "trips": 26639, "passengers": 320820},
+  {"province": "สงขลา", "port_id": 1, "port_name": "ท่าแพขนานยนต์ สงขลา", "route": "ท่าแพขนานยนต์ สงขลา-ท่าแพขนานยนต์ สิงหนคร", "vessel_type": "แพขนานยนต์", "trips": 95628, "passengers": 9513014},
+  {"province": "สตูล", "port_id": 1, "port_name": "ท่าเทียบเรือตำมะลัง", "route": "ท่าเทียบเรือตำมะลัง-ท่าเรือลังกาวี", "vessel_type": "เรือขนาดเล็ก", "trips": 73, "passengers": 3207},
+  {"province": "สตูล", "port_id": 1, "port_name": "ท่าเทียบเรือตำมะลัง", "route": "ท่าเทียบเรือตำมะลัง-ท่าเรือลังกาวี", "vessel_type": "เรือขนาดใหญ่", "trips": 678, "passengers": 58929},
+  {"province": "สตูล", "port_id": 2, "port_name": "ท่าเทียบเรือปากบารา", "route": "ท่าเทียบเรือปากบารา-ท่าเรือเกาะหลีเป๊ะ", "vessel_type": "เรือขนาดเล็ก", "trips": 9389, "passengers": 346347},
+  {"province": "สตูล", "port_id": 2, "port_name": "ท่าเทียบเรือปากบารา", "route": "ท่าเทียบเรือปากบารา-ท่าเรือเกาะหลีเป๊ะ", "vessel_type": "เรือขนาดใหญ่", "trips": 24, "passengers": 1369},
+  {"province": "สตูล", "port_id": 3, "port_name": "โป๊ะเทียบเรือเกาะหลีเป๊ะ", "route": "เกาะหลีเป๊ะ-ท่าเรือปากบารา", "vessel_type": "เรือขนาดเล็ก", "trips": 12354, "passengers": 509273},
+  {"province": "สตูล", "port_id": 3, "port_name": "โป๊ะเทียบเรือเกาะหลีเป๊ะ", "route": "เกาะหลีเป๊ะ-ท่าเรือปากบารา", "vessel_type": "เรือขนาดใหญ่", "trips": 1426, "passengers": 74785},
+  {"province": "สุราษฎร์ธานี", "port_id": 1, "port_name": "ท่าเทียบเรือท้องกรูด", "route": "ท่าเทียบเรือท้องกรูด-เกาะมัดสุ่ม-เกาะแตน", "vessel_type": "เรือขนาดเล็ก", "trips": 11075, "passengers": 89211},
+  {"province": "สุราษฎร์ธานี", "port_id": 2, "port_name": "ท่าเรือซีทรานดิสเวอร์รี่ (เทศบาลบางรักษ์)", "route": "ท่าเรือซีทรานดิสเวอร์รี่ (เทศบาลบางรักษ์) - เกาะพงัน", "vessel_type": "เรือขนาดเล็ก", "trips": 220, "passengers": 9186},
+  {"province": "สุราษฎร์ธานี", "port_id": 2, "port_name": "ท่าเรือซีทรานดิสเวอร์รี่ (เทศบาลบางรักษ์)", "route": "ท่าเรือซีทรานดิสเวอร์รี่ (เทศบาลบางรักษ์) - เกาะพงัน", "vessel_type": "เรือขนาดใหญ่", "trips": 1286, "passengers": 101342},
+  {"province": "สุราษฎร์ธานี", "port_id": 3, "port_name": "ท่าเรือซีทรานเฟอร์รี่", "route": "ท่าเรือซีทรานเฟอร์รี่ (เกาะสมุย) - ดอนสัก", "vessel_type": "เรือขนาดเล็ก", "trips": 31, "passengers": 983},
+  {"province": "สุราษฎร์ธานี", "port_id": 3, "port_name": "ท่าเรือซีทรานเฟอร์รี่", "route": "ท่าเรือซีทรานเฟอร์รี่ (เกาะสมุย) - ดอนสัก", "vessel_type": "เรือขนาดใหญ่", "trips": 16171, "passengers": 1758101},
+  {"province": "สุราษฎร์ธานี", "port_id": 4, "port_name": "ท่าเรือเทศบาลบ้านเชี่ยวหลาน (เขื่อนรัชชประภา)", "route": "ท่าเรือเขื่อนรัชชประภา(เขื่อนเชี่ยวหลาน) - ภายในเขื่อนรัชชประภา", "vessel_type": "เรือขนาดเล็ก", "trips": 133649, "passengers": 589399},
+  {"province": "สุราษฎร์ธานี", "port_id": 4, "port_name": "ท่าเรือเทศบาลบ้านเชี่ยวหลาน (เขื่อนรัชชประภา)", "route": "ท่าเรือเขื่อนรัชชประภา(เขื่อนเชี่ยวหลาน) - ภายในเขื่อนรัชชประภา", "vessel_type": "เรือขนาดใหญ่", "trips": 10, "passengers": 2031},
+  {"province": "สุราษฎร์ธานี", "port_id": 5, "port_name": "ท่าเรือนอนเทศบาลนครสุราษฎร์ธานี (เรือนอน) อ.เมือง จ.สุราษฎร์ธานี", "route": "ท่าเรือนอนเทศบาลสุราษฎร์ธานี(เรือนอน) - ท่าเรือเอนกประสงค์ท้องศาลา", "vessel_type": "เรือขนาดเล็ก", "trips": 567, "passengers": 11342},
+  {"province": "สุราษฎร์ธานี", "port_id": 5, "port_name": "ท่าเรือนอนเทศบาลนครสุราษฎร์ธานี (เรือนอน) อ.เมือง จ.สุราษฎร์ธานี", "route": "ท่าเรือนอนเทศบาลสุราษฎร์ธานี(เรือนอน) - ท่าเรือเอนกประสงค์ท้องศาลา", "vessel_type": "เรือขนาดใหญ่", "trips": 120, "passengers": 8289},
+  {"province": "สุราษฎร์ธานี", "port_id": 6, "port_name": "ท่าเรือแม่หาด", "route": "เกาะเต่า-เกาะพะงัน-เกาะสมุย / เกาะเต่า-ชุมพร-เกาะเต่า / เกาะเต่า-สุราษฎร์ธานี-เกาะเต่า", "vessel_type": "เรือขนาดใหญ่", "trips": 10005, "passengers": 1254491},
+  {"province": "สุราษฎร์ธานี", "port_id": 7, "port_name": "ท่าเรือราชาเฟอร์รี่", "route": "ท่าเรือราชาเฟอร์รี่-ดอนสัก", "vessel_type": "เรือขนาดเล็ก", "trips": 9845, "passengers": 355522},
+  {"province": "สุราษฎร์ธานี", "port_id": 7, "port_name": "ท่าเรือราชาเฟอร์รี่", "route": "ท่าเรือราชาเฟอร์รี่-ดอนสัก", "vessel_type": "เรือขนาดใหญ่", "trips": 1534, "passengers": 88919},
+  {"province": "สุราษฎร์ธานี", "port_id": 8, "port_name": "ท่าเรือลมพระยาตาปี บริษัท เรือเร็วลมพระยา จำกัด", "route": "ท่าเรือตาปี - เกาะสมุย - เกาะพงัน - เกาะเต่า", "vessel_type": "เรือขนาดเล็ก", "trips": 48, "passengers": 1017},
+  {"province": "สุราษฎร์ธานี", "port_id": 8, "port_name": "ท่าเรือลมพระยาตาปี บริษัท เรือเร็วลมพระยา จำกัด", "route": "ท่าเรือตาปี - เกาะสมุย - เกาะพงัน - เกาะเต่า", "vessel_type": "เรือขนาดใหญ่", "trips": 2839, "passengers": 392313},
+  {"province": "สุราษฎร์ธานี", "port_id": 9, "port_name": "ท่าเรือลมพระยาหน้าทอน", "route": "ท่าเรือลมพระยาหน้าทอน(เกาะสมุย)-เกาะเต่า-เกาะพะงัน-ดอนสัก", "vessel_type": "เรือขนาดเล็ก", "trips": 448, "passengers": 19211},
+  {"province": "สุราษฎร์ธานี", "port_id": 9, "port_name": "ท่าเรือลมพระยาหน้าทอน", "route": "ท่าเรือลมพระยาหน้าทอน(เกาะสมุย)-เกาะเต่า-เกาะพะงัน-ดอนสัก", "vessel_type": "เรือขนาดใหญ่", "trips": 2485, "passengers": 189924},
+  {"province": "สุราษฎร์ธานี", "port_id": 10, "port_name": "ท่าเรือส่งเสริม", "route": "ท่าเรือส่งเสริม - เกาะเต่า-เกาะพงัน", "vessel_type": "เรือขนาดเล็ก", "trips": 174, "passengers": 6405},
+  {"province": "สุราษฎร์ธานี", "port_id": 10, "port_name": "ท่าเรือส่งเสริม", "route": "ท่าเรือส่งเสริม - เกาะเต่า-เกาะพงัน", "vessel_type": "เรือขนาดใหญ่", "trips": 530, "passengers": 69409},
+  {"province": "สุราษฎร์ธานี", "port_id": 11, "port_name": "ท่าเรือหมู่เกาะอ่างทอง", "route": "ท่าเรือหมู่เกาะอ่างทอง-เกาะวัวตาหลับ-เกาะแม่เกาะ", "vessel_type": "เรือขนาดเล็ก", "trips": 4, "passengers": 173},
+  {"province": "สุราษฎร์ธานี", "port_id": 11, "port_name": "ท่าเรือหมู่เกาะอ่างทอง", "route": "ท่าเรือหมู่เกาะอ่างทอง-เกาะวัวตาหลับ-เกาะแม่เกาะ", "vessel_type": "เรือขนาดใหญ่", "trips": 696, "passengers": 71571},
+  {"province": "สุราษฎร์ธานี", "port_id": 12, "port_name": "ท่าเรือหาดริ้น", "route": "หาดริ้น-เกาะสมุย-หาดริ้น", "vessel_type": "เรือขนาดเล็ก", "trips": 418, "passengers": 16432},
+  {"province": "สุราษฎร์ธานี", "port_id": 12, "port_name": "ท่าเรือหาดริ้น", "route": "หาดริ้น-เกาะสมุย-หาดริ้น", "vessel_type": "เรือขนาดใหญ่", "trips": 1102, "passengers": 93233},
+  {"province": "สุราษฎร์ธานี", "port_id": 13, "port_name": "ท่าเรือหาดริ้นควีน", "route": "ท่าเรือหาดริ้นควีน-เกาะพะงัน-เกาะสมุย", "vessel_type": "เรือขนาดเล็ก", "trips": 260, "passengers": 10368},
+  {"province": "สุราษฎร์ธานี", "port_id": 13, "port_name": "ท่าเรือหาดริ้นควีน", "route": "ท่าเรือหาดริ้นควีน-เกาะพะงัน-เกาะสมุย", "vessel_type": "เรือขนาดใหญ่", "trips": 1257, "passengers": 109514},
+  {"province": "สุราษฎร์ธานี", "port_id": 14, "port_name": "ท่าเรืออเนกประสงค์ท้องศาลา", "route": "เกาะพะงัน-เกาะเต่า-เกาะพะงัน / เกาะพะงัน-เกาะสมุย-เกาะพะงัน / เกาะพะงัน-ดอนสัก-เกาะพะงัน", "vessel_type": "เรือขนาดเล็ก", "trips": 568, "passengers": 27332},
+  {"province": "สุราษฎร์ธานี", "port_id": 14, "port_name": "ท่าเรืออเนกประสงค์ท้องศาลา", "route": "เกาะพะงัน-เกาะเต่า-เกาะพะงัน / เกาะพะงัน-เกาะสมุย-เกาะพะงัน / เกาะพะงัน-ดอนสัก-เกาะพะงัน", "vessel_type": "เรือขนาดใหญ่", "trips": 29112, "passengers": 2219185},
+  {"province": "สุราษฎร์ธานี", "port_id": 15, "port_name": "บจก.ซีทรานเฟอร์รี่ อ.ดอนสัก จ.สุราษฎร์ธานี", "route": "บจก.ซีทรานเฟอร์รี่ อ.ดอนสัก จ.สุราษฎร์ธานี - เกาะเต่า - เกาะพะงัน - เกาะสมุย", "vessel_type": "เรือขนาดเล็ก", "trips": 8594, "passengers": 338238},
+  {"province": "สุราษฎร์ธานี", "port_id": 15, "port_name": "บจก.ซีทรานเฟอร์รี่ อ.ดอนสัก จ.สุราษฎร์ธานี", "route": "บจก.ซีทรานเฟอร์รี่ อ.ดอนสัก จ.สุราษฎร์ธานี - เกาะเต่า - เกาะพะงัน - เกาะสมุย", "vessel_type": "เรือขนาดใหญ่", "trips": 19737, "passengers": 1903179},
+  {"province": "สุราษฎร์ธานี", "port_id": 16, "port_name": "ลมพระยาหน้าพระลาน", "route": "บจก.เรือเร็วลมพระยา - เกาะเต่า - เกาะพะงัน - เกาะสมุย-ดอนสัก", "vessel_type": "เรือขนาดเล็ก", "trips": 12, "passengers": 458},
+  {"province": "สุราษฎร์ธานี", "port_id": 16, "port_name": "ลมพระยาหน้าพระลาน", "route": "บจก.เรือเร็วลมพระยา - เกาะเต่า - เกาะพะงัน - เกาะสมุย-ดอนสัก", "vessel_type": "เรือขนาดใหญ่", "trips": 3756, "passengers": 552892}
+];
+
+    // State Variables
+    let filteredData = [...rawData];
+    let currentSortColumn = 'passengers';
+    let currentSortOrder = 'desc';
+    let currentPage = 1;
+    let pageSize = 15;
+    let currentChartMetric = 'passengers';
+
+    // Chart instances
+    let provinceChartInstance = null;
+    let vesselChartInstance = null;
+    let topPortsChartInstance = null;
+
+    // Initialize Dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      populateProvinceDropdown();
+      applyFilters();
+    });
+
+    function populateProvinceDropdown() {
+      const provinces = [...new Set(rawData.map(d => d.province))].sort((a, b) => a.localeCompare(b, 'th'));
+      const select = document.getElementById('selectProvince');
+      provinces.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        select.appendChild(opt);
+      });
+    }
+
+    function applyFilters() {
+      const selectedProvince = document.getElementById('selectProvince').value;
+      const selectedVessel = document.getElementById('selectVessel').value;
+      const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      filteredData = rawData.filter(item => {
+        const matchProvince = (selectedProvince === 'ALL' || item.province === selectedProvince);
+        const matchVessel = (selectedVessel === 'ALL' || item.vessel_type === selectedVessel);
+        const matchSearch = searchTerm === '' || 
+          item.port_name.toLowerCase().includes(searchTerm) || 
+          item.route.toLowerCase().includes(searchTerm) ||
+          item.province.toLowerCase().includes(searchTerm);
+        return matchProvince && matchVessel && matchSearch;
+      });
+
+      // Update Header Text
+      document.getElementById('filterStatusText').textContent = `แสดง ${filteredData.length} จาก 169 รายการ`;
+
+      // Sort Data
+      sortCurrentData();
+
+      // Reset to page 1
+      currentPage = 1;
+
+      // Update Views
+      updateKPICards();
+      updateCharts();
+      renderTable();
+    }
+
+    function resetFilters() {
+      document.getElementById('selectProvince').value = 'ALL';
+      document.getElementById('selectVessel').value = 'ALL';
+      document.getElementById('searchInput').value = '';
+      applyFilters();
+    }
+
+    function updateKPICards() {
+      const totalPassengers = filteredData.reduce((sum, item) => sum + item.passengers, 0);
+      const totalTrips = filteredData.reduce((sum, item) => sum + item.trips, 0);
+      const uniquePorts = new Set(filteredData.map(item => `${item.province}_${item.port_id}`)).size;
+      const avgPax = totalTrips > 0 ? (totalPassengers / totalTrips).toFixed(1) : 0;
+
+      document.getElementById('cardPassengers').textContent = totalPassengers.toLocaleString('th-TH');
+      document.getElementById('cardTrips').textContent = totalTrips.toLocaleString('th-TH');
+      document.getElementById('cardPorts').textContent = uniquePorts.toLocaleString('th-TH');
+      document.getElementById('cardAvgPax').textContent = avgPax;
+
+      // Province rank in current filter
+      const provSums = {};
+      filteredData.forEach(d => {
+        provSums[d.province] = (provSums[d.province] || 0) + d.passengers;
+      });
+      const topProv = Object.entries(provSums).sort((a, b) => b[1] - a[1])[0];
+      if (topProv) {
+        document.getElementById('cardTopProvince').textContent = topProv[0];
+        const pct = totalPassengers > 0 ? ((topProv[1] / totalPassengers) * 100).toFixed(1) : 0;
+        document.getElementById('cardTopProvincePax').textContent = `${(topProv[1] / 1000000).toFixed(2)}M คน (${pct}%)`;
+      } else {
+        document.getElementById('cardTopProvince').textContent = '-';
+        document.getElementById('cardTopProvincePax').textContent = '-';
+      }
+    }
+
+    function setChartMetric(metric) {
+      currentChartMetric = metric;
+      const btnPax = document.getElementById('btnMetricPax');
+      const btnTrips = document.getElementById('btnMetricTrips');
+
+      if (metric === 'passengers') {
+        btnPax.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition";
+        btnTrips.className = "px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition";
+      } else {
+        btnTrips.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white text-blue-600 shadow-sm transition";
+        btnPax.className = "px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition";
+      }
+      updateProvinceBarChart();
+    }
+
+    function updateCharts() {
+      updateProvinceBarChart();
+      updateVesselPieChart();
+      updateTopPortsChart();
+    }
+
+    function updateProvinceBarChart() {
+      // Group by province
+      const provMap = {};
+      filteredData.forEach(d => {
+        if (!provMap[d.province]) {
+          provMap[d.province] = { passengers: 0, trips: 0 };
+        }
+        provMap[d.province].passengers += d.passengers;
+        provMap[d.province].trips += d.trips;
+      });
+
+      const sortedProvinces = Object.keys(provMap).sort((a, b) => {
+        return provMap[b][currentChartMetric] - provMap[a][currentChartMetric];
+      });
+
+      const labels = sortedProvinces;
+      const dataValues = sortedProvinces.map(p => provMap[p][currentChartMetric]);
+      const metricLabel = currentChartMetric === 'passengers' ? 'จำนวนผู้โดยสาร (คน)' : 'จำนวนเที่ยวเรือ (เที่ยว)';
+      const barColor = currentChartMetric === 'passengers' ? 'rgba(37, 99, 235, 0.85)' : 'rgba(79, 70, 229, 0.85)';
+
+      const ctx = document.getElementById('provinceBarChart').getContext('2d');
+      if (provinceChartInstance) {
+        provinceChartInstance.destroy();
+      }
+
+      provinceChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: metricLabel,
+            data: dataValues,
+            backgroundColor: barColor,
+            borderRadius: 6,
+            hoverBackgroundColor: 'rgba(14, 165, 233, 0.95)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.parsed.y.toLocaleString('th-TH')} ${currentChartMetric === 'passengers' ? 'คน' : 'เที่ยว'}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(val) {
+                  if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+                  if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+                  return val;
+                }
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            x: {
+              ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    function updateVesselPieChart() {
+      const vesselMap = { 'เรือขนาดเล็ก': 0, 'เรือขนาดใหญ่': 0, 'แพขนานยนต์': 0 };
+      filteredData.forEach(d => {
+        if (vesselMap[d.vessel_type] !== undefined) {
+          vesselMap[d.vessel_type] += d.passengers;
+        }
+      });
+
+      const total = Object.values(vesselMap).reduce((a, b) => a + b, 0);
+      document.getElementById('statSmallVessel').textContent = `${((vesselMap['เรือขนาดเล็ก'] / (total || 1)) * 100).toFixed(1)}%`;
+      document.getElementById('statLargeVessel').textContent = `${((vesselMap['เรือขนาดใหญ่'] / (total || 1)) * 100).toFixed(1)}%`;
+      document.getElementById('statFerryVessel').textContent = `${((vesselMap['แพขนานยนต์'] / (total || 1)) * 100).toFixed(1)}%`;
+
+      const ctx = document.getElementById('vesselPieChart').getContext('2d');
+      if (vesselChartInstance) {
+        vesselChartInstance.destroy();
+      }
+
+      vesselChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['เรือขนาดเล็ก', 'เรือขนาดใหญ่', 'แพขนานยนต์'],
+          datasets: [{
+            data: [vesselMap['เรือขนาดเล็ก'], vesselMap['เรือขนาดใหญ่'], vesselMap['แพขนานยนต์']],
+            backgroundColor: [
+              'rgba(14, 165, 233, 0.85)',
+              'rgba(79, 70, 229, 0.85)',
+              'rgba(245, 158, 11, 0.85)'
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${val.toLocaleString('th-TH')} คน (${pct}%)`;
+                }
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    function updateTopPortsChart() {
+      // Group by port
+      const portMap = {};
+      filteredData.forEach(d => {
+        const key = `${d.port_name} (${d.province})`;
+        if (!portMap[key]) {
+          portMap[key] = { passengers: 0, trips: 0 };
+        }
+        portMap[key].passengers += d.passengers;
+        portMap[key].trips += d.trips;
+      });
+
+      const topPorts = Object.entries(portMap)
+        .sort((a, b) => b[1].passengers - a[1].passengers)
+        .slice(0, 10);
+
+      const labels = topPorts.map(p => p[0]);
+      const dataPax = topPorts.map(p => p[1].passengers);
+
+      const ctx = document.getElementById('topPortsChart').getContext('2d');
+      if (topPortsChartInstance) {
+        topPortsChartInstance.destroy();
+      }
+
+      topPortsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'ผู้โดยสาร (คน)',
+            data: dataPax,
+            backgroundColor: 'rgba(16, 185, 129, 0.85)',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return ` ผู้โดยสาร: ${ctx.parsed.x.toLocaleString('th-TH')} คน`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(val) {
+                  if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+                  if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+                  return val;
+                }
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            y: {
+              ticks: { font: { size: 11 } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Table Sorting & Rendering
+    function sortTable(column) {
+      if (currentSortColumn === column) {
+        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSortColumn = column;
+        currentSortOrder = (column === 'trips' || column === 'passengers' || column === 'port_id') ? 'desc' : 'asc';
+      }
+      sortCurrentData();
+      renderTable();
+    }
+
+    function sortCurrentData() {
+      // Update Sort Icons
+      const cols = ['province', 'port_id', 'port_name', 'route', 'vessel_type', 'trips', 'passengers'];
+      cols.forEach(c => {
+        const icon = document.getElementById(`sort_${c}`);
+        if (icon) {
+          if (c === currentSortColumn) {
+            icon.textContent = currentSortOrder === 'asc' ? '▲' : '▼';
+            icon.className = 'text-blue-600 font-bold';
+          } else {
+            icon.textContent = '↕';
+            icon.className = 'text-slate-400 font-normal';
+          }
+        }
+      });
+
+      filteredData.sort((a, b) => {
+        let valA = a[currentSortColumn];
+        let valB = b[currentSortColumn];
+
+        if (typeof valA === 'string') {
+          const comp = valA.localeCompare(valB, 'th');
+          return currentSortOrder === 'asc' ? comp : -comp;
+        } else {
+          return currentSortOrder === 'asc' ? valA - valB : valB - valA;
+        }
+      });
+    }
+
+    function changePageSize() {
+      const val = document.getElementById('pageSizeSelect').value;
+      pageSize = val === 'ALL' ? filteredData.length : parseInt(val);
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '';
+
+      if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 font-medium">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
+        document.getElementById('tableInfoText').textContent = 'แสดง 0 รายการ';
+        document.getElementById('paginationControls').innerHTML = '';
+        return;
+      }
+
+      const totalItems = filteredData.length;
+      const effectivePageSize = pageSize === 'ALL' ? totalItems : pageSize;
+      const totalPages = Math.ceil(totalItems / effectivePageSize);
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * effectivePageSize;
+      const endIndex = Math.min(startIndex + effectivePageSize, totalItems);
+      const pageItems = filteredData.slice(startIndex, endIndex);
+
+      pageItems.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50') + ' hover:bg-blue-50/40 transition duration-150';
+
+        let badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+        if (row.vessel_type === 'เรือขนาดใหญ่') badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        if (row.vessel_type === 'แพขนานยนต์') badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-slate-800">${row.province}</td>
+          <td class="py-3 px-3 text-center text-slate-500 font-medium">${row.port_id}</td>
+          <td class="py-3 px-4 text-slate-800 font-medium">${row.port_name}</td>
+          <td class="py-3 px-4 text-slate-600">${row.route || '-'}</td>
+          <td class="py-3 px-3 text-center">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${row.vessel_type}</span>
+          </td>
+          <td class="py-3 px-4 text-right font-medium text-slate-700">${row.trips.toLocaleString('th-TH')}</td>
+          <td class="py-3 px-4 text-right font-bold text-blue-600">${row.passengers.toLocaleString('th-TH')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update Pagination UI
+      document.getElementById('tableInfoText').textContent = `แสดงรายการที่ ${(startIndex + 1).toLocaleString('th-TH')} ถึง ${endIndex.toLocaleString('th-TH')} จากทั้งหมด ${totalItems.toLocaleString('th-TH')} รายการ`;
+
+      const paginationContainer = document.getElementById('paginationControls');
+      paginationContainer.innerHTML = '';
+
+      if (totalPages > 1) {
+        // Prev button
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '◀ ก่อนหน้า';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.className = `px-2.5 py-1 rounded border text-xs font-medium transition ${currentPage === 1 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-100 border-slate-300'}`;
+        prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
+        paginationContainer.appendChild(prevBtn);
+
+        // Page Numbers
+        let pageStart = Math.max(1, currentPage - 2);
+        let pageEnd = Math.min(totalPages, pageStart + 4);
+        if (pageEnd - pageStart < 4) pageStart = Math.max(1, pageEnd - 4);
+
+        for (let p = pageStart; p <= pageEnd; p++) {
+          const pBtn = document.createElement('button');
+          pBtn.textContent = p;
+          pBtn.className = `w-7 h-7 rounded border text-xs font-medium transition ${p === currentPage ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'text-slate-700 hover:bg-slate-100 border-slate-300'}`;
+          pBtn.onclick = () => { currentPage = p; renderTable(); };
+          paginationContainer.appendChild(pBtn);
+        }
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = 'ถัดไป ▶';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.className = `px-2.5 py-1 rounded border text-xs font-medium transition ${currentPage === totalPages ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-100 border-slate-300'}`;
+        nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); } };
+        paginationContainer.appendChild(nextBtn);
+      }
+    }
+
+    // Export Helpers
+    function downloadCSV() {
+      let csvContent = "\uFEFFprovince,port_id,port_name,route,vessel_type,trips,passengers\n";
+      filteredData.forEach(row => {
+        const line = [
+          `"${row.province}"`,
+          `"${row.port_id}"`,
+          `"${(row.port_name || '').replace(/"/g, '""')}"`,
+          `"${(row.route || '').replace(/"/g, '""')}"`,
+          `"${row.vessel_type}"`,
+          row.trips,
+          row.passengers
+        ].join(',');
+        csvContent += line + "\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `marine_traffic_stats_2568.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function downloadJSON() {
+      const jsonStr = JSON.stringify(filteredData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `marine_traffic_stats_2568.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
